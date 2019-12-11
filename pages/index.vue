@@ -1,75 +1,96 @@
 <template>
-  <v-layout column justify-center align-center>
-    <v-flex xs12 sm8 md6>
-      <div class="text-center">
-        <logo />
-        <vuetify-logo />
-      </div>
-      <v-card>
+  <div>
+    <div id="left-background">
+      <span class="title white--text ma-3 font-weight-bold">Pushbots</span>
+    </div>
+    <div id="right-background">
+      <v-card id="login-form" flat width="400px">
         <v-card-title class="headline">
-          Welcome to the Vuetify + Nuxt.js template
+          Log into your account
         </v-card-title>
         <v-card-text>
-          <p>
-            Vuetify is a progressive Material Design component framework for
-            Vue.js. It was designed to empower developers to create amazing
-            applications.
-          </p>
-          <p>
-            For more information on Vuetify, check out the
-            <a href="https://vuetifyjs.com" target="_blank"> documentation </a>.
-          </p>
-          <p>
-            If you have questions, please join the official
-            <a href="https://chat.vuetifyjs.com/" target="_blank" title="chat">
-              discord </a
-            >.
-          </p>
-          <p>
-            Find a bug? Report it on the github
-            <a
-              href="https://github.com/vuetifyjs/vuetify/issues"
-              target="_blank"
-              title="contribute"
+          <form @submit.prevent="login">
+            <v-text-field v-model="email" label="Email" required />
+            <v-text-field
+              v-model="password"
+              label="Password"
+              type="password"
+              required
+            />
+            <v-btn
+              type="submit"
+              :loading="loading"
+              small
+              block
+              dark
+              color="#008b8b"
             >
-              issue board </a
-            >.
-          </p>
-          <p>
-            Thank you for developing with Vuetify and I look forward to bringing
-            more exciting features in the future.
-          </p>
-          <div class="text-xs-right">
-            <em><small>&mdash; John Leider</small></em>
-          </div>
-          <hr class="my-3" />
-          <a href="https://nuxtjs.org/" target="_blank">
-            Nuxt Documentation
-          </a>
-          <br />
-          <a href="https://github.com/nuxt/nuxt.js" target="_blank">
-            Nuxt GitHub
-          </a>
+              Sign In
+            </v-btn>
+          </form>
         </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="primary" nuxt to="/inspire">
-            Continue
-          </v-btn>
-        </v-card-actions>
       </v-card>
-    </v-flex>
-  </v-layout>
+    </div>
+  </div>
 </template>
-
 <script>
-import Logo from '~/components/Logo.vue'
-import VuetifyLogo from '~/components/VuetifyLogo.vue'
-
 export default {
-  components: {
-    Logo,
-    VuetifyLogo
+  data() {
+    return {
+      email: 'frontend@ninja.com',
+      password: '12345',
+      loading: false
+    }
+  },
+  methods: {
+    login() {
+      this.loading = true
+      this.$store
+        .dispatch('login', {
+          email: this.email,
+          password: this.password
+        })
+        .then((result) => {
+          this.$router.push('/dashboard')
+          this.toast.success(`Welcome back ${this.currentUser.name}`)
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 401) {
+            this.toast.error('Wrong email or password.')
+          } else {
+            this.toast.error('Error while authenticating.')
+          }
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    }
   }
 }
 </script>
+
+<style scoped>
+#left-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #008b8b;
+}
+
+#right-background {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  background-color: white;
+}
+
+#login-form {
+  position: fixed;
+  top: 25%;
+  left: 60%;
+}
+</style>
